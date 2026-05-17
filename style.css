@@ -9,6 +9,24 @@
   --danger: #ff4d6a;
   --success: #4dff88;
   --live-pulse: rgba(255, 77, 106, 0.4);
+  --border-subtle: rgba(255,255,255,0.06);
+  --shadow-card: 0 14px 30px rgba(0,0,0,0.55);
+}
+
+/* LIGHT MODE OVERRIDES */
+:root[data-theme="light"] {
+  --bg: #f5f7fb;
+  --bg-alt: #ffffff;
+  --card: #ffffff;
+  --accent: #1e88e5;
+  --accent-soft: #e3f2fd;
+  --text: #11141c;
+  --muted: #5f6475;
+  --danger: #d32f2f;
+  --success: #2e7d32;
+  --live-pulse: rgba(211, 47, 47, 0.35);
+  --border-subtle: rgba(0,0,0,0.06);
+  --shadow-card: 0 10px 24px rgba(0,0,0,0.12);
 }
 
 * {
@@ -19,10 +37,14 @@
 
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: radial-gradient(circle at top, #15192a 0, #05060a 55%);
+  background: radial-gradient(circle at top, #15192a 0, var(--bg) 55%);
   color: var(--text);
   min-height: 100vh;
   padding: 0 0 40px;
+}
+
+:root[data-theme="light"] body {
+  background: var(--bg);
 }
 
 .app {
@@ -40,6 +62,10 @@ body {
   padding: 8px 12px 6px;
   margin: 0 -12px 4px;
   backdrop-filter: blur(10px);
+}
+
+:root[data-theme="light"] .header-wrap {
+  background: linear-gradient(to bottom, rgba(245,247,251,0.98), rgba(245,247,251,0.9), transparent);
 }
 
 .header {
@@ -68,6 +94,12 @@ body {
   box-shadow: 0 0 12px rgba(255, 77, 106, 0.7);
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .title {
   font-size: 1.25rem;
   font-weight: 700;
@@ -86,19 +118,45 @@ body {
   margin-top: 2px;
 }
 
+/* Theme toggle (header, right side) */
+.theme-toggle {
+  margin-left: auto;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-alt);
+  color: var(--muted);
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.theme-toggle .theme-icon {
+  font-size: 0.8rem;
+}
+
+.theme-toggle .theme-label {
+  font-size: 0.7rem;
+}
+
 /* Cards */
 .card {
-  background: linear-gradient(135deg, #10131c, #05060a);
+  background: linear-gradient(135deg, var(--card), var(--bg));
   border-radius: 16px;
   padding: 14px 14px 10px;
   margin-bottom: 12px;
-  border: 1px solid rgba(255,255,255,0.04);
-  box-shadow: 0 14px 30px rgba(0,0,0,0.55);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
 
-  /* Phase 4 fade-in */
   opacity: 0;
   transform: translateY(8px);
   animation: cardIn 0.4s ease-out forwards;
+}
+
+:root[data-theme="light"] .card {
+  background: var(--card);
 }
 
 @keyframes cardIn {
@@ -140,12 +198,43 @@ body {
   overflow-y: auto;
 }
 
+:root[data-theme="light"] .games {
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
 /* Phase 4 fade-out before refresh */
 .games-fade-out {
   opacity: 0;
   transition: opacity 0.12s ease-out;
 }
 
+/* Picks rows (Phase 6) */
+.pick-row {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.pick-row:last-child {
+  border-bottom: none;
+}
+
+:root[data-theme="light"] .pick-row {
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.pick-input {
+  width: 100%;
+  padding: 6px 4px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-alt);
+  color: var(--text);
+}
+
+/* Games */
 .game {
   display: flex;
   justify-content: space-between;
@@ -153,13 +242,14 @@ body {
   padding: 6px 0;
   border-bottom: 1px solid rgba(255,255,255,0.03);
   font-size: 0.8rem;
-
-  /* Phase 4 row animation */
-  opacity: 1;
 }
 
 .game:last-child {
   border-bottom: none;
+}
+
+:root[data-theme="light"] .game {
+  border-bottom: 1px solid rgba(0,0,0,0.03);
 }
 
 /* FINAL */
@@ -233,6 +323,10 @@ body {
   overflow: hidden;
 }
 
+:root[data-theme="light"] .team-logo {
+  background: #e0e3ee;
+}
+
 .team-logo img {
   width: 100%;
   height: 100%;
@@ -292,21 +386,27 @@ body {
   z-index: 30;
 }
 
+:root[data-theme="light"] .bottom-nav {
+  background: linear-gradient(to top, rgba(245,247,251,0.98), rgba(245,247,251,0.9), transparent);
+}
+
 .nav-btn {
   flex: 1;
   border-radius: 999px;
   padding: 6px 4px;
   font-size: 0.7rem;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid var(--border-subtle);
   background: rgba(15,18,28,0.9);
   color: var(--muted);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-
-  /* Phase 4 micro animation */
   transition: transform 0.12s ease-out;
+}
+
+:root[data-theme="light"] .nav-btn {
+  background: rgba(255,255,255,0.9);
 }
 
 .nav-btn.active {
