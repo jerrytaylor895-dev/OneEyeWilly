@@ -108,29 +108,33 @@ async function fetchESPN(path) {
 }
 
 // --------------------------------------------------
-//  ESPN‑SAFE mapGame()  (PATCHED)
+//  ESPN‑SAFE mapGame()  (FULLY PATCHED)
 // --------------------------------------------------
 
 function mapGame(ev) {
-  const c = ev.competitions?.[0];
+  const c = ev?.competitions?.[0];
   if (!c) return null;
 
   const home = c.competitors?.find(t => t.homeAway === "home");
   const away = c.competitors?.find(t => t.homeAway === "away");
   if (!home || !away) return null;
 
-  // ESPN sometimes sends undefined status fields → this prevents crashes
-  const rawStatus = c.status?.type?.shortName || "TBD";
-  const status = rawStatus.toUpperCase();
+  const rawStatus =
+    c.status?.type?.shortName ||
+    c.status?.type?.name ||
+    c.status?.type?.state ||
+    "TBD";
+
+  const status = String(rawStatus).toUpperCase();
 
   const isLive = c.status?.type?.state === "in";
   const isFinal = status === "FINAL";
 
   return {
-    homeTeam: home.team.shortDisplayName.replace(/\s+/g, ""),
-    awayTeam: away.team.shortDisplayName.replace(/\s+/g, ""),
-    homeScore: home.score || 0,
-    awayScore: away.score || 0,
+    homeTeam: home.team?.shortDisplayName?.replace(/\s+/g, "") || "Home",
+    awayTeam: away.team?.shortDisplayName?.replace(/\s+/g, "") || "Away",
+    homeScore: home.score ?? 0,
+    awayScore: away.score ?? 0,
     status,
     isLive,
     isFinal
