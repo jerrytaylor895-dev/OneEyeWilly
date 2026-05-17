@@ -15,7 +15,7 @@ function updateTimestamp() {
 updateTimestamp();
 
 // --------------------------------------------------
-//  THEME SYSTEM (PHASE 5)
+//  THEME SYSTEM
 // --------------------------------------------------
 
 const THEME_KEY = "oneeyewilly_theme";
@@ -59,7 +59,7 @@ function initTheme() {
 initTheme();
 
 // --------------------------------------------------
-//  TEAM COLORS (PHASE 3)
+//  TEAM COLORS
 // --------------------------------------------------
 
 const teamColors = {
@@ -107,13 +107,23 @@ async function fetchESPN(path) {
   }
 }
 
-function mapGame(ev) {
-  const c = ev.competitions[0];
-  const home = c.competitors.find(t => t.homeAway === "home");
-  const away = c.competitors.find(t => t.homeAway === "away");
+// --------------------------------------------------
+//  ESPN‑SAFE mapGame()  (PATCHED)
+// --------------------------------------------------
 
-  const status = c.status.type.shortName.toUpperCase();
-  const isLive = c.status.type.state === "in";
+function mapGame(ev) {
+  const c = ev.competitions?.[0];
+  if (!c) return null;
+
+  const home = c.competitors?.find(t => t.homeAway === "home");
+  const away = c.competitors?.find(t => t.homeAway === "away");
+  if (!home || !away) return null;
+
+  // ESPN sometimes sends undefined status fields → this prevents crashes
+  const rawStatus = c.status?.type?.shortName || "TBD";
+  const status = rawStatus.toUpperCase();
+
+  const isLive = c.status?.type?.state === "in";
   const isFinal = status === "FINAL";
 
   return {
@@ -128,27 +138,27 @@ function mapGame(ev) {
 }
 
 // --------------------------------------------------
-//  LEAGUE LOADERS
+//  LEAGUE LOADERS (PATCHED WITH .filter(Boolean))
 // --------------------------------------------------
 
 async function loadSoccer() {
   const events = await fetchESPN("soccer/usa.1");
-  return events.map(mapGame);
+  return events.map(mapGame).filter(Boolean);
 }
 
 async function loadMLB() {
   const events = await fetchESPN("baseball/mlb");
-  return events.map(mapGame);
+  return events.map(mapGame).filter(Boolean);
 }
 
 async function loadNBA() {
   const events = await fetchESPN("basketball/nba");
-  return events.map(mapGame);
+  return events.map(mapGame).filter(Boolean);
 }
 
 async function loadNHL() {
   const events = await fetchESPN("hockey/nhl");
-  return events.map(mapGame);
+  return events.map(mapGame).filter(Boolean);
 }
 
 // --------------------------------------------------
@@ -206,7 +216,7 @@ function renderGame(game) {
 }
 
 // --------------------------------------------------
-//  LEAGUE-SPECIFIC FALLBACK SYSTEM
+//  LEAGUE‑SPECIFIC FALLBACK SYSTEM
 // --------------------------------------------------
 
 function renderLeague(containerId, games) {
@@ -249,7 +259,7 @@ function renderLeague(containerId, games) {
 }
 
 // --------------------------------------------------
-//  SAVED PICKS (PHASE 6)
+//  SAVED PICKS
 // --------------------------------------------------
 
 const PICKS_KEY = "oneeyewilly_picks";
