@@ -13,7 +13,7 @@
   --shadow-card: 0 14px 30px rgba(0,0,0,0.55);
 }
 
-/* LIGHT MODE OVERRIDES */
+/* LIGHT MODE */
 :root[data-theme="light"] {
   --bg: #f5f7fb;
   --bg-alt: #ffffff;
@@ -118,7 +118,7 @@ body {
   margin-top: 2px;
 }
 
-/* Theme toggle (header, right side) */
+/* Theme toggle */
 .theme-toggle {
   margin-left: auto;
   border-radius: 999px;
@@ -202,13 +202,22 @@ body {
   border-top: 1px solid rgba(0,0,0,0.06);
 }
 
-/* Phase 4 fade-out before refresh */
+/* Fade-out before refresh */
 .games-fade-out {
   opacity: 0;
   transition: opacity 0.12s ease-out;
 }
 
-/* Picks rows (Phase 6) */
+/* Fallback message */
+.no-games {
+  padding: 12px 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+/* Picks */
 .pick-row {
   padding: 6px 0;
   border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -283,7 +292,7 @@ body {
   100% { box-shadow: 0 0 0 10px transparent; opacity: 0.2; }
 }
 
-/* Phase 4 row slide/fade */
+/* Row animation */
 .game-animate-in {
   opacity: 0;
   transform: translateY(6px);
@@ -360,13 +369,6 @@ body {
 .status.final {
   color: var(--success);
   font-weight: 600;
-}
-
-.footer-note {
-  margin-top: 10px;
-  font-size: 0.7rem;
-  color: var(--muted);
-  text-align: center;
 }
 
 /* Bottom nav */
