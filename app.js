@@ -8,9 +8,55 @@ window.addEventListener("load", () => {
 
 const updatedText = document.getElementById("updatedText");
 function updateTimestamp() {
-  updatedText.textContent = "Updated: " + new Date().toLocaleString();
+  if (updatedText) {
+    updatedText.textContent = "Updated: " + new Date().toLocaleString();
+  }
 }
 updateTimestamp();
+
+// --------------------------------------------------
+//  THEME SYSTEM (PHASE 5)
+// --------------------------------------------------
+
+const THEME_KEY = "oneeyewilly_theme";
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const btn = document.getElementById("themeToggle");
+  if (!btn) return;
+
+  const icon = btn.querySelector(".theme-icon");
+  const label = btn.querySelector(".theme-label");
+
+  if (theme === "light") {
+    icon.textContent = "☀️";
+    label.textContent = "Light";
+  } else {
+    icon.textContent = "🌙";
+    label.textContent = "Dark";
+  }
+}
+
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  const prefersDark = window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  const theme = saved || (prefersDark ? "dark" : "dark"); // default dark
+  applyTheme(theme);
+
+  const btn = document.getElementById("themeToggle");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme") || "dark";
+      const next = current === "dark" ? "light" : "dark";
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme(next);
+    });
+  }
+}
+
+initTheme();
 
 // --------------------------------------------------
 //  TEAM COLORS (PHASE 3)
@@ -164,22 +210,87 @@ function renderGame(game) {
     </div>
   `;
 
-  // Phase 4: animate row in
   animateRow(row);
-
   return row;
 }
 
 function renderLeague(containerId, games) {
   const box = document.getElementById(containerId);
+  if (!box) return;
 
-  // Phase 4: fade out then in
   box.classList.add("games-fade-out");
   setTimeout(() => {
     box.classList.remove("games-fade-out");
     box.innerHTML = "";
     games.forEach(g => box.appendChild(renderGame(g)));
   }, 120);
+}
+
+// --------------------------------------------------
+//  SAVED PICKS (PHASE 6)
+// --------------------------------------------------
+
+const PICKS_KEY = "oneeyewilly_picks";
+
+function loadSavedPicks() {
+  try {
+    const raw = localStorage.getItem(PICKS_KEY);
+    if (!raw) return ["ATL Utd ML", "Dodgers -1.5", "Rangers Over 5.5"];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return ["ATL Utd ML", "Dodgers -1.5", "Rangers Over 5.5"];
+    }
+    return parsed;
+  } catch {
+    return ["ATL Utd ML", "Dodgers -1.5", "Rangers Over 5.5"];
+  }
+}
+
+function savePicks(picks) {
+  localStorage.setItem(PICKS_KEY, JSON.stringify(picks));
+}
+
+function renderPicks() {
+  const picksList = document.getElementById("picksList");
+  if (!picksList) return;
+
+  const picks = loadSavedPicks();
+  picksList.innerHTML = "";
+
+  picks.forEach((text, index) => {
+    const row = document.createElement("div");
+    row.className = "pick-row";
+    row.textContent = text;
+
+    row.addEventListener("click", () => {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "pick-input";
+      input.value = text;
+      row.replaceWith(input);
+      input.focus();
+      input.select();
+
+      const commit = () => {
+        const newVal = input.value.trim() || text;
+        const all = loadSavedPicks();
+        all[index] = newVal;
+        savePicks(all);
+        renderPicks();
+      };
+
+      input.addEventListener("blur", commit);
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          input.blur();
+        } else if (e.key === "Escape") {
+          renderPicks();
+        }
+      });
+    });
+
+    picksList.appendChild(row);
+  });
 }
 
 // --------------------------------------------------
@@ -223,6 +334,7 @@ async function loadAll() {
 
 // Initial load + auto-refresh
 loadAll();
+renderPicks();
 setInterval(loadAll, 60000);
 
 // --------------------------------------------------
@@ -236,7 +348,6 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
 
-    // Tiny press animation (Phase 4)
     btn.classList.add("nav-press");
     setTimeout(() => btn.classList.remove("nav-press"), 150);
 
