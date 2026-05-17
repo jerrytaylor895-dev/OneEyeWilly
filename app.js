@@ -5,35 +5,72 @@ window.addEventListener("load", () => {
 
 // Update timestamp
 const updatedText = document.getElementById("updatedText");
-updatedText.textContent = "Updated: " + new Date().toLocaleString();
+function updateTimestamp() {
+  updatedText.textContent = "Updated: " + new Date().toLocaleString();
+}
+updateTimestamp();
 
-// Handle bottom nav tab clicks
-document.querySelectorAll(".nav-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const target = btn.getAttribute("data-target");
+// -------------------------------
+//  ESPN FETCH HELPERS
+// -------------------------------
 
-    // Update active tab styling
-    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+// Generic ESPN fetcher
+async function fetchESPN(path) {
+  try {
+    const url = `https://site.api.espn.com/apis/site/v2/sports/${path}/scoreboard`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data.events || [];
+  } catch (err) {
+    console.error("ESPN fetch error:", err);
+    return [];
+  }
+}
 
-    // Home button → scroll to top
-    if (target === "top") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
+// Map ESPN event → clean game object
+function mapGame(ev) {
+  const c = ev.competitions[0];
+  const home = c.competitors.find(t => t.homeAway === "home");
+  const away = c.competitors.find(t => t.homeAway === "away");
 
-    const el = document.getElementById(target);
-    if (!el) return;
+  return {
+    homeTeam: home.team.shortDisplayName.replace(/\s+/g, ""),
+    awayTeam: away.team.shortDisplayName.replace(/\s+/g, ""),
+    homeScore: home.score || 0,
+    awayScore: away.score || 0,
+    status: c.status.type.shortName.toUpperCase(), // LIVE / FINAL / etc.
+    isLive: c.status.type.state === "in"
+  };
+}
 
-    // Delay fixes scroll anchoring + MLB lock
-    setTimeout(() => {
-      const y = el.getBoundingClientRect().top + window.scrollY - 80; // header offset
-      window.scrollTo({ top: y, behavior: "smooth" });
-    }, 50);
-  });
-});
+// -------------------------------
+//  LEAGUE LOADERS
+// -------------------------------
 
-// Create team logo
+async function loadSoccer() {
+  const events = await fetchESPN("soccer/usa.1");
+  return events.map(mapGame);
+}
+
+async function loadMLB() {
+  const events = await fetchESPN("baseball/mlb");
+  return events.map(mapGame);
+}
+
+async function loadNBA() {
+  const events = await fetchESPN("basketball/nba");
+  return events.map(mapGame);
+}
+
+async function loadNHL() {
+  const events = await fetchESPN("hockey/nhl");
+  return events.map(mapGame);
+}
+
+// -------------------------------
+//  RENDERING
+// -------------------------------
+
 function createLogo(team) {
   const div = document.createElement("div");
   div.className = "team-logo";
@@ -46,12 +83,11 @@ function createLogo(team) {
   return div;
 }
 
-// Render a single game row
 function renderGame(game) {
   const row = document.createElement("div");
   row.className = "game";
 
-  if (game.status === "LIVE") row.classList.add("live");
+  if (game.isLive) row.classList.add("live");
   if (game.status === "FINAL") row.classList.add("final");
 
   row.innerHTML = `
@@ -66,49 +102,68 @@ function renderGame(game) {
       </div>
     </div>
 
-    <div class="score">
-      ${game.homeScore} - ${game.awayScore}
-    </div>
+    <div class="score">${game.homeScore} - ${game.awayScore}</div>
 
-    <div class="status ${game.status.toLowerCase()}">
-      ${game.status}
-    </div>
+    <div class="status ${game.status.toLowerCase()}">${game.status}</div>
   `;
 
   return row;
 }
 
-// Render league scoreboard
 function renderLeague(containerId, games) {
   const box = document.getElementById(containerId);
   box.innerHTML = "";
   games.forEach(g => box.appendChild(renderGame(g)));
 }
 
-// Sample placeholder data
-const sampleData = {
-  soccer: [
-    { homeTeam: "AtlantaUtd", awayTeam: "Nashville", homeScore: 1, awayScore: 1, status: "LIVE" }
-  ],
-  mlb: [
-    { homeTeam: "Yankees", awayTeam: "RedSox", homeScore: 4, awayScore: 3, status: "FINAL" },
-    { homeTeam: "Dodgers", awayTeam: "Giants", homeScore: 2, awayScore: 1, status: "LIVE" }
-  ],
-  nba: [
-    { homeTeam: "Lakers", awayTeam: "Warriors", homeScore: 110, awayScore: 108, status: "FINAL" }
-  ],
-  nhl: [
-    { homeTeam: "Rangers", awayTeam: "Bruins", homeScore: 3, awayScore: 2, status: "LIVE" }
-  ]
-};
+// -------------------------------
+//  LOAD ALL LEAGUES
+// -------------------------------
 
-// Initial render
-renderLeague("soccerGames", sampleData.soccer);
-renderLeague("mlbGames", sampleData.mlb);
-renderLeague("nbaGames", sampleData.nba);
-renderLeague("nhlGames", sampleData.nhl);
+async function loadAll() {
+  updateTimestamp();
 
-// Auto-refresh timestamp every 60s
-setInterval(() => {
-  updatedText.textContent = "Updated: " + new Date().toLocaleString();
-}, 60000);
+  const [soccer, mlb, nba, nhl] = await Promise.all([
+    loadSoccer(),
+    loadMLB(),
+    loadNBA(),
+    loadNHL()
+  ]);
+
+  renderLeague("soccerGames", soccer);
+  renderLeague("mlbGames", mlb);
+  renderLeague("nbaGames", nba);
+  renderLeague("nhlGames", nhl);
+}
+
+// Initial load
+loadAll();
+
+// Auto-refresh every 60 seconds
+setInterval(loadAll, 60000);
+
+// -------------------------------
+//  TAB SCROLLING
+// -------------------------------
+
+document.querySelectorAll(".nav-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const target = btn.getAttribute("data-target");
+
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    if (target === "top") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    const el = document.getElementById(target);
+    if (!el) return;
+
+    setTimeout(() => {
+      const y = el.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }, 50);
+  });
+});
