@@ -1,119 +1,280 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pirates & Parlays</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Tin’s Daily Multi-League Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #05060a;
+      --card: #11141c;
+      --accent: #3ea6ff;
+      --accent-soft: #243447;
+      --text: #f5f7ff;
+      --muted: #9aa4c2;
+      --danger: #ff4d6a;
+      --success: #4dff88;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #15192a 0, #05060a 55%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px 12px 32px;
+    }
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .updated {
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+    .card {
+      background: linear-gradient(135deg, #10131c, #05060a);
+      border-radius: 16px;
+      padding: 14px 14px 10px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.55);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .pill {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .games {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .game {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.8rem;
+    }
+    .game:last-child {
+      border-bottom: none;
+    }
+    .teams {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .team-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .team-name {
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .score {
+      font-weight: 600;
+    }
+    .status {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: right;
+    }
+    .status.live {
+      color: var(--danger);
+    }
+    .status.final {
+      color: var(--success);
+    }
+    .footer-note {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
 </head>
-
 <body>
-    <header>
-        <h1>Pirates & Parlays</h1>
-        <p class="tagline">Sharp edges. Dark waters. Captain’s picks only.</p>
+  <div class="app">
+    <header class="header">
+      <div class="title">Tin’s Daily Multi-League Dashboard</div>
+      <div class="subtitle">Auto-pulled from ESPN • Read-only • App-style</div>
+      <div class="updated" id="updatedText">Loading today’s board…</div>
     </header>
 
-    <main class="layout">
-        <!-- LEFT: NAV / TABS -->
-        <aside class="sidebar">
-            <h2>Captain’s Log</h2>
-            <p>Welcome aboard, Captain Tin. Your edges await.</p>
+    <!-- Soccer -->
+    <section class="card" id="soccerCard">
+      <div class="card-header">
+        <div class="card-title">🏆 Soccer</div>
+        <div class="pill">Today</div>
+      </div>
+      <div class="games" id="soccerGames">
+        <div class="status">Loading soccer scoreboard…</div>
+      </div>
+    </section>
 
-            <button id="loadSampleReport" class="full">Load Sample Report</button>
+    <!-- MLB -->
+    <section class="card" id="mlbCard">
+      <div class="card-header">
+        <div class="card-title">⚾ MLB</div>
+        <div class="pill">Today</div>
+      </div>
+      <div class="games" id="mlbGames">
+        <div class="status">Loading MLB scoreboard…</div>
+      </div>
+    </section>
 
-            <h3 class="sidebar-title">Sections</h3>
-            <ul class="nav-list">
-                <li data-target="dashboard" class="active">Dashboard</li>
-                <li data-target="liveEdges">Live Edges</li>
-                <li data-target="captainPicks">Captain’s Picks</li>
-                <li data-target="leagues">Leagues</li>
-            </ul>
-        </aside>
+    <!-- NBA -->
+    <section class="card" id="nbaCard">
+      <div class="card-header">
+        <div class="card-title">🏀 NBA</div>
+        <div class="pill">Today</div>
+      </div>
+      <div class="games" id="nbaGames">
+        <div class="status">Loading NBA scoreboard…</div>
+      </div>
+    </section>
 
-        <!-- RIGHT: MAIN PANELS -->
-        <section class="content">
+    <!-- NHL -->
+    <section class="card" id="nhlCard">
+      <div class="card-header">
+        <div class="card-title">🏒 NHL</div>
+        <div class="pill">Today</div>
+      </div>
+      <div class="games" id="nhlGames">
+        <div class="status">Loading NHL scoreboard…</div>
+      </div>
+    </section>
 
-            <!-- DASHBOARD PANEL -->
-            <section id="dashboard" class="panel active">
-                <div class="card">
-                    <h2>Sample Captain’s Report</h2>
-                    <div id="sampleReport">
-                        <p><strong>Top Edge:</strong> Arsenal ML +6.2% (sample)</p>
-                        <p><strong>Over/Under:</strong> LAFC Over 2.5 (sample)</p>
-                        <p><strong>Bundesliga:</strong> Bayern Over 3.5 (sample)</p>
-                        <p><em>More coming soon, Captain Tin...</em></p>
-                    </div>
-                </div>
+    <div class="footer-note">
+      Data from ESPN public scoreboards. Refresh the page for the latest board.
+    </div>
+  </div>
 
-                <div class="card">
-                    <h2>System Status</h2>
-                    <ul class="status-list">
-                        <li><strong>6 AM Global Report:</strong> Online (sample)</li>
-                        <li><strong>5 PM Evening Slate:</strong> Online (sample)</li>
-                        <li><strong>Tin‑Mode Filters:</strong> Active (sample)</li>
-                        <li><strong>OneEyeWilly Engine:</strong> Warming up (sample)</li>
-                    </ul>
-                </div>
-            </section>
+  <script>
+    const updatedText = document.getElementById('updatedText');
+    updatedText.textContent = "Updated: " + new Date().toLocaleString();
 
-            <!-- LIVE EDGES PANEL -->
-            <section id="liveEdges" class="panel">
-                <div class="card">
-                    <h2>Live Edges (Sample)</h2>
-                    <ul id="liveEdgesList" class="edge-list"></ul>
-                    <button id="refreshEdges">Refresh Sample Edges</button>
-                </div>
-            </section>
+    async function loadScoreboard(url, targetId) {
+      const container = document.getElementById(targetId);
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
 
-            <!-- CAPTAIN’S PICKS PANEL -->
-            <section id="captainPicks" class="panel">
-                <div class="card">
-                    <h2>Captain’s Picks (Sample)</h2>
-                    <ul id="captainPicksList" class="edge-list"></ul>
-                    <button id="rollPicks">Roll New Sample Picks</button>
-                </div>
-            </section>
+        const events = data.events || [];
+        if (!events.length) {
+          container.innerHTML = '<div class="status">No games listed for today.</div>';
+          return;
+        }
 
-            <!-- LEAGUES PANEL -->
-            <section id="leagues" class="panel">
-                <div class="card">
-                    <h2>Leagues Overview (Sample)</h2>
-                    <div class="league-grid">
-                        <div class="league-card">
-                            <h3>MLS</h3>
-                            <p>Home xG spikes • BTTS/Over combos.</p>
-                        </div>
-                        <div class="league-card">
-                            <h3>EPL</h3>
-                            <p>Top‑6 vs Bottom‑6 stability.</p>
-                        </div>
-                        <div class="league-card">
-                            <h3>La Liga</h3>
-                            <p>Watch mid‑table volatility.</p>
-                        </div>
-                        <div class="league-card">
-                            <h3>Serie A</h3>
-                            <p>Low‑total traps • Red‑card risk.</p>
-                        </div>
-                        <div class="league-card">
-                            <h3>Bundesliga</h3>
-                            <p>Overs league • High tempo.</p>
-                        </div>
-                        <div class="league-card">
-                            <h3>Liga MX</h3>
-                            <p>Unders • Slow tempo • Low shots.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        container.innerHTML = "";
+        events.forEach(ev => {
+          const comp = ev.competitions && ev.competitions[0];
+          if (!comp) return;
 
-        </section>
-    </main>
+          const competitors = (comp.competitors || []).sort(
+            (a, b) => (a.homeAway === "home" ? 1 : -1)
+          );
+          const status = ev.status && ev.status.type ? ev.status.type : {};
+          const shortStatus = status.shortDetail || status.detail || "";
+          const state = status.state || "";
 
-    <footer>
-        <p>🏴‍☠️ OneEyeWilly Engine • Sample UI for Captain Tin</p>
-    </footer>
+          const gameDiv = document.createElement('div');
+          gameDiv.className = 'game';
 
-    <script src="app.js"></script>
+          const teamsDiv = document.createElement('div');
+          teamsDiv.className = 'teams';
+
+          competitors.forEach(team => {
+            const line = document.createElement('div');
+            line.className = 'team-line';
+
+            const name = document.createElement('span');
+            name.className = 'team-name';
+            name.textContent = team.team && team.team.shortDisplayName
+              ? team.team.shortDisplayName
+              : (team.team && team.team.displayName) || "Team";
+
+            const score = document.createElement('span');
+            score.className = 'score';
+            score.textContent = team.score || "";
+
+            line.appendChild(name);
+            if (score.textContent) line.appendChild(score);
+            teamsDiv.appendChild(line);
+          });
+
+          const statusDiv = document.createElement('div');
+          statusDiv.className = 'status';
+          statusDiv.textContent = shortStatus;
+          if (state === "in") statusDiv.classList.add('live');
+          if (state === "post") statusDiv.classList.add('final');
+
+          gameDiv.appendChild(teamsDiv);
+          gameDiv.appendChild(statusDiv);
+          container.appendChild(gameDiv);
+        });
+      } catch (e) {
+        console.error(e);
+        container.innerHTML = '<div class="status">Error loading data.</div>';
+      }
+    }
+
+    // ESPN endpoints
+    loadScoreboard(
+      "https://site.api.espn.com/apis/site/v2/sports/soccer/scoreboard",
+      "soccerGames"
+    );
+    loadScoreboard(
+      "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard",
+      "mlbGames"
+    );
+    loadScoreboard(
+      "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard",
+      "nbaGames"
+    );
+    loadScoreboard(
+      "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard",
+      "nhlGames"
+    );
+  </script>
 </body>
 </html>
