@@ -1,0 +1,180 @@
+/* Base */
+body {
+    margin: 0;
+    padding: 0;
+    background: #050608;
+    color: #e6e6e6;
+    font-family: "Trebuchet MS", sans-serif;
+}
+
+header {
+    text-align: center;
+    padding: 30px 20px;
+    background: #0b0b0f;
+    border-bottom: 2px solid #333;
+}
+
+h1 {
+    font-size: 40px;
+    margin: 0;
+    color: #f2d16b;
+}
+
+.tagline {
+    font-size: 16px;
+    margin-top: 8px;
+    color: #c9c9c9;
+}
+
+/* Layout */
+.layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 120px);
+}
+
+/* Sidebar */
+.sidebar {
+    background: #0d0d12;
+    border-right: 1px solid #222;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    margin-top: 0;
+    color: #f2d16b;
+}
+
+.sidebar p {
+    font-size: 14px;
+    color: #d0d0d0;
+}
+
+.sidebar-title {
+    margin-top: 25px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+}
+
+.nav-list li {
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #dcdcdc;
+}
+
+.nav-list li:hover {
+    background: #1c1c24;
+}
+
+.nav-list li.active {
+    background: #f2d16b;
+    color: #000;
+}
+
+/* Content */
+.content {
+    padding: 25px;
+}
+
+.card {
+    background: #111119;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: 1px solid #262636;
+}
+
+.card h2 {
+    margin-top: 0;
+    color: #f2d16b;
+}
+
+/* Buttons */
+button {
+    background: #f2d16b;
+    color: #000;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+button:hover {
+    background: #ffe08a;
+}
+
+button.full {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Lists */
+.status-list,
+.edge-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    font-size: 14px;
+}
+
+.status-list li,
+.edge-list li {
+    margin-bottom: 6px;
+}
+
+/* Panels */
+.panel {
+    display: none;
+}
+
+.panel.active {
+    display: block;
+}
+
+/* League grid */
+.league-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.league-card {
+    background: #181822;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #2a2a3a;
+}
+
+.league-card h3 {
+    margin: 0 0 6px;
+    color: #f2d16b;
+}
+
+.league-card p {
+    margin: 0;
+    font-size: 13px;
+    color: #d0d0d0;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 10px 20px;
+    font-size: 12px;
+    color: #888;
+    background: #050509;
+    border-top: 1px solid #222;
+}

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pirates & Parlays</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Pirates & Parlays</h1>
+        <p class="tagline">Sharp edges. Dark waters. Captain’s picks only.</p>
+    </header>
+
+    <main class="layout">
+        <!-- LEFT: NAV / TABS -->
+        <aside class="sidebar">
+            <h2>Captain’s Log</h2>
+            <p>Welcome aboard, Captain Tin. Your edges await.</p>
+
+            <button id="loadSampleReport" class="full">Load Sample Report</button>
+
+            <h3 class="sidebar-title">Sections</h3>
+            <ul class="nav-list">
+                <li data-target="dashboard" class="active">Dashboard</li>
+                <li data-target="liveEdges">Live Edges</li>
+                <li data-target="captainPicks">Captain’s Picks</li>
+                <li data-target="leagues">Leagues</li>
+            </ul>
+        </aside>
+
+        <!-- RIGHT: MAIN PANELS -->
+        <section class="content">
+
+            <!-- DASHBOARD PANEL -->
+            <section id="dashboard" class="panel active">
+                <div class="card">
+                    <h2>Sample Captain’s Report</h2>
+                    <div id="sampleReport">
+                        <p><strong>Top Edge:</strong> Arsenal ML +6.2% (sample)</p>
+                        <p><strong>Over/Under:</strong> LAFC Over 2.5 (sample)</p>
+                        <p><strong>Bundesliga:</strong> Bayern Over 3.5 (sample)</p>
+                        <p><em>More coming soon, Captain Tin...</em></p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>System Status</h2>
+                    <ul class="status-list">
+                        <li><strong>6 AM Global Report:</strong> Online (sample)</li>
+                        <li><strong>5 PM Evening Slate:</strong> Online (sample)</li>
+                        <li><strong>Tin‑Mode Filters:</strong> Active (sample)</li>
+                        <li><strong>OneEyeWilly Engine:</strong> Warming up (sample)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- LIVE EDGES PANEL -->
+            <section id="liveEdges" class="panel">
+                <div class="card">
+                    <h2>Live Edges (Sample)</h2>
+                    <ul id="liveEdgesList" class="edge-list"></ul>
+                    <button id="refreshEdges">Refresh Sample Edges</button>
+                </div>
+            </section>
+
+            <!-- CAPTAIN’S PICKS PANEL -->
+            <section id="captainPicks" class="panel">
+                <div class="card">
+                    <h2>Captain’s Picks (Sample)</h2>
+                    <ul id="captainPicksList" class="edge-list"></ul>
+                    <button id="rollPicks">Roll New Sample Picks</button>
+                </div>
+            </section>
+
+            <!-- LEAGUES PANEL -->
+            <section id="leagues" class="panel">
+                <div class="card">
+                    <h2>Leagues Overview (Sample)</h2>
+                    <div class="league-grid">
+                        <div class="league-card">
+                            <h3>MLS</h3>
+                            <p>Home xG spikes • BTTS/Over combos.</p>
+                        </div>
+                        <div class="league-card">
+                            <h3>EPL</h3>
+                            <p>Top‑6 vs Bottom‑6 stability.</p>
+                        </div>
+                        <div class="league-card">
+                            <h3>La Liga</h3>
+                            <p>Watch mid‑table volatility.</p>
+                        </div>
+                        <div class="league-card">
+                            <h3>Serie A</h3>
+                            <p>Low‑total traps • Red‑card risk.</p>
+                        </div>
+                        <div class="league-card">
+                            <h3>Bundesliga</h3>
+                            <p>Overs league • High tempo.</p>
+                        </div>
+                        <div class="league-card">
+                            <h3>Liga MX</h3>
+                            <p>Unders • Slow tempo • Low shots.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>🏴‍☠️ OneEyeWilly Engine • Sample UI for Captain Tin</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
