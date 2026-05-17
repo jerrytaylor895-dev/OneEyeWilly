@@ -3,7 +3,7 @@ window.scrollTo(0, 0);
 const updatedText = document.getElementById('updatedText');
 updatedText.textContent = "Updated: " + new Date().toLocaleString();
 
-// Bottom navigation smooth scroll (GitHub Pages FIXED version)
+// Bottom navigation smooth scroll (GitHub Pages FIXED version) const y = el
 document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -19,12 +19,12 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     const el = document.getElementById(targetId);
     if (!el) return;
 
-    const y = el.getBoundingClientRect().top + window.scrollY - 140;
-    window.scrollTo({ top: y, behavior: 'smooth' });
-  });
-});
+   setTimeout(() => {
+  const y = el.getBoundingClientRect().top + window.scrollY - 140;
+  window.scrollTo({ top: y, behavior: 'smooth' });
+}, 50);
 
-// Create team logo
+    // Create team logo
 function createLogo(team) {
   const logoDiv = document.createElement('div');
   logoDiv.className = 'team-logo';
