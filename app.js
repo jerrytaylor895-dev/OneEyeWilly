@@ -1,9 +1,11 @@
-// Always start at top on load
+// --------------------------------------------------
+//  INITIAL SCROLL + TIMESTAMP
+// --------------------------------------------------
+
 window.addEventListener("load", () => {
   window.scrollTo(0, 0);
 });
 
-// Update timestamp
 const updatedText = document.getElementById("updatedText");
 function updateTimestamp() {
   updatedText.textContent = "Updated: " + new Date().toLocaleString();
@@ -48,7 +50,7 @@ const teamColors = {
 };
 
 // --------------------------------------------------
-//  ESPN FETCH HELPERS
+//  ESPN FETCH HELPERS (PHASE 1)
 // --------------------------------------------------
 
 async function fetchESPN(path) {
@@ -109,7 +111,7 @@ async function loadNHL() {
 }
 
 // --------------------------------------------------
-//  RENDERING
+//  RENDERING (PHASE 2 + 3 + 4)
 // --------------------------------------------------
 
 function createLogo(team) {
@@ -124,7 +126,13 @@ function createLogo(team) {
   return div;
 }
 
-// Phase 2 + Phase 3 renderGame
+// Row animation helper (Phase 4)
+function animateRow(row) {
+  row.classList.add("game-animate-in");
+  setTimeout(() => row.classList.remove("game-animate-in"), 400);
+}
+
+// Phase 2 + 3 + 4 renderGame
 function renderGame(game) {
   const row = document.createElement("div");
   row.className = "game";
@@ -156,17 +164,26 @@ function renderGame(game) {
     </div>
   `;
 
+  // Phase 4: animate row in
+  animateRow(row);
+
   return row;
 }
 
 function renderLeague(containerId, games) {
   const box = document.getElementById(containerId);
-  box.innerHTML = "";
-  games.forEach(g => box.appendChild(renderGame(g)));
+
+  // Phase 4: fade out then in
+  box.classList.add("games-fade-out");
+  setTimeout(() => {
+    box.classList.remove("games-fade-out");
+    box.innerHTML = "";
+    games.forEach(g => box.appendChild(renderGame(g)));
+  }, 120);
 }
 
 // --------------------------------------------------
-//  LOAD ALL LEAGUES
+//  LOAD ALL LEAGUES (PHASE 1 + 2)
 // --------------------------------------------------
 
 async function loadAll() {
@@ -184,7 +201,7 @@ async function loadAll() {
   renderLeague("nbaGames", nba);
   renderLeague("nhlGames", nhl);
 
-  // Auto-scroll to first LIVE game
+  // Auto-scroll to first LIVE game (Phase 2)
   const firstLive = document.querySelector(".game.live");
   if (firstLive) {
     setTimeout(() => {
@@ -193,7 +210,7 @@ async function loadAll() {
     }, 200);
   }
 
-  // LIVE glow on nav
+  // LIVE glow on nav (Phase 2)
   const anyLive = document.querySelector(".game.live") !== null;
   document.querySelectorAll(".nav-btn").forEach(btn => {
     if (btn.dataset.target !== "top") {
@@ -204,14 +221,12 @@ async function loadAll() {
   });
 }
 
-// Initial load
+// Initial load + auto-refresh
 loadAll();
-
-// Auto-refresh every 60 seconds
 setInterval(loadAll, 60000);
 
 // --------------------------------------------------
-//  TAB SCROLLING
+//  TAB SCROLLING (PHASE 1 BASE + PHASE 4 MICRO-ANIM)
 // --------------------------------------------------
 
 document.querySelectorAll(".nav-btn").forEach(btn => {
@@ -220,6 +235,10 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
 
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
+
+    // Tiny press animation (Phase 4)
+    btn.classList.add("nav-press");
+    setTimeout(() => btn.classList.remove("nav-press"), 150);
 
     if (target === "top") {
       window.scrollTo({ top: 0, behavior: "smooth" });
