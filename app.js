@@ -42,7 +42,7 @@ function initTheme() {
   const prefersDark = window.matchMedia &&
     window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-  const theme = saved || (prefersDark ? "dark" : "dark"); // default dark
+  const theme = saved || (prefersDark ? "dark" : "dark");
   applyTheme(theme);
 
   const btn = document.getElementById("themeToggle");
@@ -63,7 +63,6 @@ initTheme();
 // --------------------------------------------------
 
 const teamColors = {
-  // MLB
   Yankees: "#003087",
   RedSox: "#BD3039",
   Dodgers: "#005A9C",
@@ -73,7 +72,6 @@ const teamColors = {
   Mets: "#002D72",
   Phillies: "#E81828",
 
-  // NBA
   Lakers: "#552583",
   Warriors: "#1D428A",
   Celtics: "#007A33",
@@ -81,14 +79,12 @@ const teamColors = {
   Heat: "#98002E",
   Knicks: "#F58426",
 
-  // NHL
   Rangers: "#0038A8",
   Bruins: "#FFB81C",
   Blackhawks: "#CF0A2C",
   MapleLeafs: "#00205B",
   Canadiens: "#AF1E2D",
 
-  // MLS
   AtlantaUtd: "#A50034",
   Nashville: "#F5E800",
   LAFC: "#C39E6D",
@@ -96,7 +92,7 @@ const teamColors = {
 };
 
 // --------------------------------------------------
-//  ESPN FETCH HELPERS (PHASE 1)
+//  ESPN FETCH HELPERS
 // --------------------------------------------------
 
 async function fetchESPN(path) {
@@ -111,7 +107,6 @@ async function fetchESPN(path) {
   }
 }
 
-// Map ESPN event → clean game object (Phase 2)
 function mapGame(ev) {
   const c = ev.competitions[0];
   const home = c.competitors.find(t => t.homeAway === "home");
@@ -157,7 +152,7 @@ async function loadNHL() {
 }
 
 // --------------------------------------------------
-//  RENDERING (PHASE 2 + 3 + 4)
+//  RENDERING + ANIMATIONS
 // --------------------------------------------------
 
 function createLogo(team) {
@@ -172,22 +167,18 @@ function createLogo(team) {
   return div;
 }
 
-// Row animation helper (Phase 4)
 function animateRow(row) {
   row.classList.add("game-animate-in");
   setTimeout(() => row.classList.remove("game-animate-in"), 400);
 }
 
-// Phase 2 + 3 + 4 renderGame
 function renderGame(game) {
   const row = document.createElement("div");
   row.className = "game";
 
-  // LIVE / FINAL styling
   if (game.isLive) row.classList.add("live");
   if (game.isFinal) row.classList.add("final");
 
-  // TEAM COLOR BAR (Phase 3)
   const color = teamColors[game.homeTeam] || teamColors[game.awayTeam] || "#3ea6ff";
   row.style.borderLeft = `4px solid ${color}`;
 
@@ -214,14 +205,45 @@ function renderGame(game) {
   return row;
 }
 
+// --------------------------------------------------
+//  LEAGUE-SPECIFIC FALLBACK SYSTEM
+// --------------------------------------------------
+
 function renderLeague(containerId, games) {
   const box = document.getElementById(containerId);
   if (!box) return;
 
   box.classList.add("games-fade-out");
+
   setTimeout(() => {
     box.classList.remove("games-fade-out");
     box.innerHTML = "";
+
+    let fallbackMessage = "No games available";
+
+    switch (containerId) {
+      case "mlbGames":
+        fallbackMessage = "No MLB games today";
+        break;
+      case "nbaGames":
+        fallbackMessage = "No NBA games today";
+        break;
+      case "nhlGames":
+        fallbackMessage = "No NHL games today";
+        break;
+      case "soccerGames":
+        fallbackMessage = "No MLS matches today";
+        break;
+    }
+
+    if (!games || games.length === 0) {
+      const msg = document.createElement("div");
+      msg.className = "no-games";
+      msg.textContent = fallbackMessage;
+      box.appendChild(msg);
+      return;
+    }
+
     games.forEach(g => box.appendChild(renderGame(g)));
   }, 120);
 }
@@ -281,11 +303,8 @@ function renderPicks() {
 
       input.addEventListener("blur", commit);
       input.addEventListener("keydown", e => {
-        if (e.key === "Enter") {
-          input.blur();
-        } else if (e.key === "Escape") {
-          renderPicks();
-        }
+        if (e.key === "Enter") input.blur();
+        if (e.key === "Escape") renderPicks();
       });
     });
 
@@ -294,7 +313,7 @@ function renderPicks() {
 }
 
 // --------------------------------------------------
-//  LOAD ALL LEAGUES (PHASE 1 + 2)
+//  LOAD ALL LEAGUES
 // --------------------------------------------------
 
 async function loadAll() {
@@ -312,7 +331,6 @@ async function loadAll() {
   renderLeague("nbaGames", nba);
   renderLeague("nhlGames", nhl);
 
-  // Auto-scroll to first LIVE game (Phase 2)
   const firstLive = document.querySelector(".game.live");
   if (firstLive) {
     setTimeout(() => {
@@ -320,25 +338,14 @@ async function loadAll() {
       window.scrollTo({ top: y, behavior: "smooth" });
     }, 200);
   }
-
-  // LIVE glow on nav (Phase 2)
-  const anyLive = document.querySelector(".game.live") !== null;
-  document.querySelectorAll(".nav-btn").forEach(btn => {
-    if (btn.dataset.target !== "top") {
-      btn.style.boxShadow = anyLive
-        ? "0 0 10px rgba(255,77,106,0.6)"
-        : "none";
-    }
-  });
 }
 
-// Initial load + auto-refresh
 loadAll();
 renderPicks();
 setInterval(loadAll, 60000);
 
 // --------------------------------------------------
-//  TAB SCROLLING (PHASE 1 BASE + PHASE 4 MICRO-ANIM)
+//  NAVIGATION SCROLL
 // --------------------------------------------------
 
 document.querySelectorAll(".nav-btn").forEach(btn => {
