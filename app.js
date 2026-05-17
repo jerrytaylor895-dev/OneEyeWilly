@@ -1,3 +1,4 @@
+window.scrollTo(0, 0);
 // Update timestamp
 const updatedText = document.getElementById('updatedText');
 updatedText.textContent = "Updated: " + new Date().toLocaleString();
