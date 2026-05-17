@@ -1,3 +1,7 @@
+window.addEventListener("load", () => {
+  window.scrollTo(0, 0);
+});
+
 window.scrollTo(0, 0);
 // Update timestamp
 const updatedText = document.getElementById('updatedText');
