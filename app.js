@@ -33,15 +33,21 @@ function mapGame(ev) {
   const home = c.competitors.find(t => t.homeAway === "home");
   const away = c.competitors.find(t => t.homeAway === "away");
 
+  const status = c.status.type.shortName.toUpperCase();
+  const isLive = c.status.type.state === "in";
+  const isFinal = status === "FINAL";
+
   return {
     homeTeam: home.team.shortDisplayName.replace(/\s+/g, ""),
     awayTeam: away.team.shortDisplayName.replace(/\s+/g, ""),
     homeScore: home.score || 0,
     awayScore: away.score || 0,
-    status: c.status.type.shortName.toUpperCase(), // LIVE / FINAL / etc.
-    isLive: c.status.type.state === "in"
+    status,
+    isLive,
+    isFinal
   };
 }
+
 
 // -------------------------------
 //  LEAGUE LOADERS
