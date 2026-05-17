@@ -1,71 +1,135 @@
-// Simple sample data
-const sampleEdges = [
-    "EPL — Arsenal ML +6.2% (sample)",
-    "MLS — LAFC Over 2.5 + BTTS Yes (sample)",
-    "Bundesliga — Bayern Over 3.5 (sample)",
-    "La Liga — Girona ML +5.1% (sample)",
-    "Liga MX — Tigres ML + BTTS No (sample)"
-];
+// Update timestamp
+const updatedText = document.getElementById('updatedText');
+updatedText.textContent = "Updated: " + new Date().toLocaleString();
 
-const samplePicks = [
-    "Captain’s Pick: Arsenal ML & Under 3.5 (sample)",
-    "Captain’s Pick: LAFC Over 2.5 (sample)",
-    "Captain’s Pick: Bayern -1.5 (sample)",
-    "Captain’s Pick: Tigres ML (sample)",
-    "Captain’s Pick: Columbus BTTS Yes (sample)"
-];
+// Bottom navigation smooth scroll (GitHub Pages FIXED version)
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
 
-// Tabs
-const navItems = document.querySelectorAll(".nav-list li");
-const panels = document.querySelectorAll(".panel");
+    const targetId = btn.getAttribute('data-target');
 
-navItems.forEach(item => {
-    item.addEventListener("click", () => {
-        const target = item.getAttribute("data-target");
+    if (targetId === 'top') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
 
-        navItems.forEach(n => n.classList.remove("active"));
-        item.classList.add("active");
+    const el = document.getElementById(targetId);
+    if (!el) return;
 
-        panels.forEach(panel => {
-            panel.classList.toggle("active", panel.id === target);
-        });
+    const y = el.getBoundingClientRect().top + window.scrollY - 140;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  });
+});
+
+// Create team logo
+function createLogo(team) {
+  const logoDiv = document.createElement('div');
+  logoDiv.className = 'team-logo';
+
+  const logos = team && team.logos;
+  if (logos && logos.length && logos[0].href) {
+    const img = document.createElement('img');
+    img.src = logos[0].href;
+    img.alt = team.shortDisplayName || team.displayName || 'Team';
+    logoDiv.appendChild(img);
+  } else {
+    const initials = (team.shortDisplayName || team.displayName || 'T')
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .slice(0, 3)
+      .toUpperCase();
+    logoDiv.textContent = initials;
+  }
+  return logoDiv;
+}
+
+// Load scoreboard
+async function loadScoreboard(url, targetId) {
+  const container = document.getElementById(targetId);
+  container.innerHTML = "<div class='status'>Loading…</div>";
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+
+    const events = data.events || [];
+    if (!events.length) {
+      container.innerHTML = '<div class="status">No games today.</div>';
+      return;
+    }
+
+    container.innerHTML = "";
+    events.forEach(ev => {
+      const comp = ev.competitions && ev.competitions[0];
+      if (!comp) return;
+
+      const competitors = (comp.competitors || []).sort(
+        (a, b) => (a.homeAway === "home" ? 1 : -1)
+      );
+      const status = ev.status && ev.status.type ? ev.status.type : {};
+      const shortStatus = status.shortDetail || status.detail || "";
+      const state = status.state || "";
+
+      const gameDiv = document.createElement('div');
+      gameDiv.className = 'game';
+      if (state === "in") gameDiv.classList.add('live');
+      if (state === "post") gameDiv.classList.add('final');
+
+      const teamsDiv = document.createElement('div');
+      teamsDiv.className = 'teams';
+
+      competitors.forEach(teamObj => {
+        const line = document.createElement('div');
+        line.className = 'team-line';
+
+        const logo = createLogo(teamObj.team || {});
+        const name = document.createElement('span');
+        name.className = 'team-name';
+        name.textContent = teamObj.team?.shortDisplayName || teamObj.team?.displayName || "Team";
+
+        const score = document.createElement('span');
+        score.className = 'score';
+        score.textContent = teamObj.score || "";
+
+        line.appendChild(logo);
+        line.appendChild(name);
+        if (score.textContent) line.appendChild(score);
+        teamsDiv.appendChild(line);
+      });
+
+      const statusDiv = document.createElement('div');
+      statusDiv.className = 'status';
+      statusDiv.textContent = shortStatus;
+      if (state === "in") statusDiv.classList.add('live');
+      if (state === "post") statusDiv.classList.add('final');
+
+      gameDiv.appendChild(teamsDiv);
+      gameDiv.appendChild(statusDiv);
+      container.appendChild(gameDiv);
     });
-});
+  } catch (e) {
+    console.error(e);
+    container.innerHTML = '<div class="status">Error loading data.</div>';
+  }
+}
 
-// Sample report button (kept for feel)
-document.getElementById("loadSampleReport").addEventListener("click", () => {
-    const sampleReport = document.getElementById("sampleReport");
-    sampleReport.innerHTML = `
-        <p><strong>Top Edge:</strong> Arsenal ML +6.2% (sample)</p>
-        <p><strong>Over/Under:</strong> LAFC Over 2.5 (sample)</p>
-        <p><strong>Bundesliga:</strong> Bayern Over 3.5 (sample)</p>
-        <p><em>More coming soon, Captain Tin...</em></p>
-    `;
-});
+// Load all leagues
+function loadAll() {
+  loadScoreboard("https://site.api.espn.com/apis/site/v2/sports/soccer/scoreboard", "soccerGames");
+  loadScoreboard("https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard", "mlbGames");
+  loadScoreboard("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard", "nbaGames");
+  loadScoreboard("https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard", "nhlGames");
+}
 
-// Live Edges
-document.getElementById("refreshEdges").addEventListener("click", () => {
-    const list = document.getElementById("liveEdgesList");
-    list.innerHTML = "";
-    sampleEdges.forEach(edge => {
-        const li = document.createElement("li");
-        li.textContent = edge;
-        list.appendChild(li);
-    });
-});
+// Initial load
+loadAll();
 
-// Captain’s Picks
-document.getElementById("rollPicks").addEventListener("click", () => {
-    const list = document.getElementById("captainPicksList");
-    list.innerHTML = "";
-    const shuffled = [...samplePicks].sort(() => Math.random() - 0.5).slice(0, 3);
-    shuffled.forEach(pick => {
-        const li = document.createElement("li");
-        li.textContent = pick;
-        list.appendChild(li);
-    });
-});
-
-// Initial fill (optional)
-document.getElementById("refreshEdges").click();
-document.getElementById("rollPicks").click();
+// Auto-refresh every 60 seconds
+setInterval(() => {
+  loadAll();
+  updatedText.textContent = "Updated: " + new Date().toLocaleString();
+}, 60000);
