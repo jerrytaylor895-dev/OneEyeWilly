@@ -108,7 +108,7 @@ async function fetchESPN(path) {
 }
 
 // --------------------------------------------------
-//  ESPN‑SAFE mapGame()  (FULLY PATCHED)
+//  ESPN‑SAFE mapGame()
 // --------------------------------------------------
 
 function mapGame(ev) {
@@ -142,7 +142,7 @@ function mapGame(ev) {
 }
 
 // --------------------------------------------------
-//  LEAGUE LOADERS (PATCHED WITH .filter(Boolean))
+//  LEAGUE LOADERS
 // --------------------------------------------------
 
 async function loadSoccer() {
@@ -166,20 +166,8 @@ async function loadNHL() {
 }
 
 // --------------------------------------------------
-//  RENDERING + ANIMATIONS
+//  RENDERING + ANIMATIONS (NO‑LOGO MODE)
 // --------------------------------------------------
-
-function createLogo(team) {
-  const div = document.createElement("div");
-  div.className = "team-logo";
-
-  const img = document.createElement("img");
-  img.src = `icons/${team}.png`;
-  img.onerror = () => (img.style.display = "none");
-
-  div.appendChild(img);
-  return div;
-}
 
 function animateRow(row) {
   row.classList.add("game-animate-in");
@@ -199,11 +187,9 @@ function renderGame(game) {
   row.innerHTML = `
     <div class="teams">
       <div class="team-line">
-        ${createLogo(game.homeTeam).outerHTML}
         <span class="team-name">${game.homeTeam}</span>
       </div>
       <div class="team-line">
-        ${createLogo(game.awayTeam).outerHTML}
         <span class="team-name">${game.awayTeam}</span>
       </div>
     </div>
